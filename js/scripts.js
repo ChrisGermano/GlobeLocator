@@ -85,7 +85,10 @@ $.get('./data/topology.json', function(topology) {
         var xy = projection([cleanLocs[c].lat,cleanLocs[c].long]);
 
         if (lastPositions[c] && !lastPositions[c].isNaN && lastPositions[c] < xy[0]) {
-          context.fillStyle = "#F00", context.fillRect(xy[0],xy[1], 2, 2);
+
+          var newColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+          context.fillStyle = newColor, context.fillRect(xy[0],xy[1], 2, 2);
         }
 
         lastPositions[c] = xy[0];

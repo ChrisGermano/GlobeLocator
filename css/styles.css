@@ -2,12 +2,5 @@ html, body {
   margin: 0;
   padding: 0;
   background: #FFF;
-}
-
-circle {
-  z-index: 9999;
-  display: block;
-  width: 10px;
-  height: 10px;
-  background-color: blue;
+  overflow: hidden;
 }
