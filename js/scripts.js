@@ -45,7 +45,7 @@ $.get('./data/topology.json', function(topology) {
 
   var cleanLocs = [];
 
-  $.get('./data/city-data.csv', function(locations) {
+  $.get('../searches/search.csv', function(locations) {
 
     var locations = locations.split("\n");
 
@@ -64,10 +64,11 @@ $.get('./data/topology.json', function(topology) {
       var tempLoc = {
         'long' : parseFloat(locations[i][0]),
         'lat' : parseFloat(locations[i][1]),
-        'name' : locations[i][2]
+        'sentiment' : locations[i][2]
       };
 
       cleanLocs.push(tempLoc);
+
     }
 
     lastPositions = new Array(cleanLocs.length);
@@ -76,19 +77,22 @@ $.get('./data/topology.json', function(topology) {
 
   render = function() {
     context.clearRect(0, 0, width, height);
-    context.beginPath(), path(sphere), context.fillStyle = "#008", context.fill();
-    context.beginPath(), path(land), context.fillStyle = "#080", context.fill();
+    context.beginPath(), path(sphere), context.fillStyle = "#222", context.fill();
+    context.beginPath(), path(land), context.fillStyle = "#777", context.fill();
     context.beginPath(), path(sphere), context.lineWidth = "3", context.stroke();
 
     if (cleanLocs.length) {
       for (var c = 0; c < cleanLocs.length; c++) {
+
+        var sentiment = cleanLocs[c]. sentiment;
+        var col = sentiment < 0 ? '#FF0000' : sentiment > 3 ? '#00FF00' : '#FFFF00';
         var xy = projection([cleanLocs[c].lat,cleanLocs[c].long]);
 
         if (lastPositions[c] && !lastPositions[c].isNaN && lastPositions[c] < xy[0]) {
 
-          var newColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+          //var randomCol = '#' + Math.floor(Math.random() * 16777215).toString(16);
 
-          context.fillStyle = newColor, context.fillRect(xy[0],xy[1], 2, 2);
+          context.fillStyle = col, context.fillRect(xy[0],xy[1], 5, 5);
         }
 
         lastPositions[c] = xy[0];
@@ -101,18 +105,17 @@ $.get('./data/topology.json', function(topology) {
   var time = Date.now();
   var rotate = [0, 0];
   var velocity = [.015, -0];
+  var doRotate = true;
 
   d3.timer(function() {
       // get current time
       var dt = Date.now() - time;
       // get the new position from modified projection function
-      projection.rotate([rotate[0] + velocity[0] * dt, rotate[1] + velocity[1] * dt]);
+      if (doRotate) {
+        projection.rotate([rotate[0] + velocity[0] * dt, rotate[1] + velocity[1] * dt]);
+      }
       // update cities position = redraw
       render();
    });
-
-  $('canvas').on('hover',function() {
-
-  })
 
 });

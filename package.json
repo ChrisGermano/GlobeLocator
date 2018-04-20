@@ -1,0 +1,24 @@
+{
+  "name": "reddiment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "main": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chris Germano <chris.eg.germano@gmail.com> (http://cgermano.com)",
+  "license": "ISC",
+  "dependencies": {
+    "@google/maps": "^0.4.6",
+    "csv-write-stream": "^2.0.0",
+    "fs": "0.0.1-security",
+    "googlemaps": "^1.12.0",
+    "install": "^0.11.0",
+    "npm": "^5.8.0",
+    "request": "^2.85.0",
+    "sentiment": "^4.2.0",
+    "snoowrap": "^1.15.2",
+    "twitter": "^1.7.1"
+  }
+}
