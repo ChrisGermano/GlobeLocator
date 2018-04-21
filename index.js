@@ -63,7 +63,7 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
           writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score})
         }
       } catch (e) {
-        cosole.log("A location failed");
+        console.log("A location failed");
       }
 
     });
