@@ -14,7 +14,7 @@ Significant update. Developed and integrated a system for tracking Twitter senti
 npm run main [keyword] [max-results]
 ```
 
-This will generate a new file in /searches. <b>Running a search will wipe previous data!</b>
+This will generate a new file in /searches. <b>Running a search will wipe previous data!</b> Create a new config.json from the template to use.
 
 
 ### v0.0.1
