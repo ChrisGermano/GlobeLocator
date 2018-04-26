@@ -6,6 +6,10 @@ Still in early stages, the goal of this project is to develop a lightweight and 
 
 ## Changelog
 
+### v0.0.3
+
+Removed previous keys and restructured user credentials. The new file is `config_template.js` which you will need to copy as `config.js` and keep in the project root. Updated `.gitignore` files.
+
 ### v0.0.2
 
 Significant update. Developed and integrated a system for tracking Twitter sentiment analysis from tweet content and pulling public location data, geocoding it, and saving it in a local csv for the existing system to read from. Operation no longer requires manual file manipulation.
@@ -14,7 +18,7 @@ Significant update. Developed and integrated a system for tracking Twitter senti
 npm run main [keyword] [max-results]
 ```
 
-This will generate a new file in /searches. <b>Running a search will wipe previous data!</b> Create a new config.json from the template to use.
+This will generate a new file in /searches. <b>Running a search will wipe previous data!</b> Create a new `config.json` from the template to use.
 
 
 ### v0.0.1
