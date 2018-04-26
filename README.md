@@ -24,6 +24,3 @@ This will generate a new file in /searches. <b>Running a search will wipe previo
 ### v0.0.1
 
 Developed the ability to plot lat/long coordinates on a simulated 3D globe, powered by D3.js and a couple third party micro-libraries to handle the math. Data has to be manually imported as csv and the columns must be in the order of long|lat|name, although name isn't currently used.
-
-
-#### Developed for and during Digital Surgeons' FizzBuzz Fridays
