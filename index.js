@@ -5,26 +5,26 @@ const gmap = require('googlemaps');
 const csvWriter = require('csv-write-stream');
 const fs = require('fs');
 
+const config = require('./config.js');
+
 const r = new snoowrap({
-  userAgent: 'Reddiment',
-  clientId: 'xEZASt8oaEQcNg',
-  clientSecret: 'vNYBZhYjbLpop3w7pAU5PbGQuhY',
-  username: 'Reddiment',
-  password: 'ReddimentPassword123?'
+  userAgent: config.snoowrap.userAgent,
+  clientId: config.snoowrap.clientId,
+  clientSecret: config.snoowrap.clientSecret,
+  username: config.snoowrap.username,
+  password: config.snoowrap.password
 });
 
 var client = new twitter({
-  consumer_key: 'FzA616FmpfywdbXE4RduQ0E82',
-  consumer_secret: 'SNC2wY3sZlJ9CMSdu2wEHRbz4yONdcKMN461JGOtkbUZMIBRXm',
-  access_token_key: '302385349-KL7mkCaS6KLMbWm6Gy14hkIjax4kwdBmQNsIkYEZ',
-  access_token_secret: 'zSHcgFUb9E0DDY1VXMeBbDl8zYVl7cMFbMPSJSESRxkHS'
+  consumer_key: config.twitter.consumer_key,
+  consumer_secret: config.twitter.consumer_secret,
+  access_token_key: config.twitter.access_token_key,
+  access_token_secret: config.twitter.access_token_secret
 });
 
 var gm_config = {
-  key: 'AIzaSyD-BceWZZfeLH8Q28cEpFNxNn_eY31L_T8',
-  stagger_time:       1000,
-  encode_polylines:   false,
-  secure:             true
+  key: config.gm_config.key,
+  secure: config.gm_config.secure
 };
 
 
