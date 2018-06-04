@@ -80,8 +80,6 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
 
   for (var t = 0; t < tweets.search_metadata.count; t++) {
 
-    console.log(tweets.statuses[t].text);
-
     var isDone = t == tweets.search_metadata.count - 1;
 
     writeToCSV(tweets.statuses[t],isDone);
