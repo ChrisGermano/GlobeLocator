@@ -34,12 +34,19 @@ const gmAPI = new gmap(gm_config);
 
 var DEBUG = 0;
 
+//The number of Tweets with a valid location, either from Tweet or user
+var validTweets = 0;
+
 var args = process.argv.slice(2);
 var targetString = args[0] || 'cyka blyat';
 var tweetCount = (parseInt(args[1])+1) || 4;
 var storeBackup = args[2] || 0;
 
+console.log("Pulling tweets containing \"" + targetString + "\"");
+
 client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, tweets, r) {
+
+  console.log("Tweets scraped successfully");
 
   if (storeBackup) {
     var backupWriter = csvWriter();
@@ -63,6 +70,9 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
         var latLng = result.results[0] ? result.results[0].geometry.location : '';
 
         if (latLng != '' && !isDone) {
+
+          validTweets++;
+
           var senti = sentiment(tweet.text);
 
           if (backupWriter) {
@@ -70,9 +80,15 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
           }
 
           writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score});
+
+        } else if (isDone) {
+          //backupWriter.end();
+          //writer.end();
+          console.log("Analysis complete, " + validTweets + "/" + (tweetCount-1) + " tweets saved.");
         }
+
       } catch (e) {
-	      if (DEBUG) {
+        if (DEBUG) {
           console.log(e);
         } else {
           console.log("A location failed");
@@ -81,18 +97,15 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
 
     });
 
-    if (isDone) {
-      if (backupWriter) backupWriter.end();
-      writer.end();
-    }
-
   }
+
+  console.log("Beginning analysis of tweets");
+
+  const tCount = tweets.search_metadata.count - 1;
 
   for (var t = 0; t < tweets.search_metadata.count; t++) {
 
-    var isDone = t == tweets.search_metadata.count - 1;
-
-    writeToCSV(tweets.statuses[t],isDone);
+    writeToCSV(tweets.statuses[t], t == tCount);
 
   }
 
