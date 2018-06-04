@@ -57,13 +57,17 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
       try {
         var latLng = result.results[0] ? result.results[0].geometry.location : '';
 
-        if (latLng != '') {
+        if (latLng != '' && !isDone) {
           var senti = sentiment(tweet.text);
 
           writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score})
         }
       } catch (e) {
-        console.log("A location failed");
+	if (DEBUG) {
+          console.log(e);
+        } else {
+          console.log("A location failed");
+        }
       }
 
     });
@@ -75,6 +79,8 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
   }
 
   for (var t = 0; t < tweets.search_metadata.count; t++) {
+
+    console.log(tweets.statuses[t].text);
 
     var isDone = t == tweets.search_metadata.count - 1;
 
