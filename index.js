@@ -37,11 +37,16 @@ var DEBUG = 0;
 var args = process.argv.slice(2);
 var targetString = args[0] || 'cyka blyat';
 var tweetCount = (parseInt(args[1])+1) || 4;
+var storeBackup = args[2] || 0;
 
 client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, tweets, r) {
 
+  if (storeBackup) {
+    var backupWriter = csvWriter();
+    backupWriter.pipe(fs.createWriteStream('searches/'+targetString+'-'+Date.now()+'.csv'));
+  }
+
   var writer = csvWriter()
-  //writer.pipe(fs.createWriteStream('searches/'+targetString+"-"+Date.now()+'.csv'));
   writer.pipe(fs.createWriteStream('searches/search.csv'))
 
   var writeToCSV = function(tweet,isDone) {
@@ -60,10 +65,14 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
         if (latLng != '' && !isDone) {
           var senti = sentiment(tweet.text);
 
-          writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score})
+          if (backupWriter) {
+            backupWriter.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score});
+          }
+
+          writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score});
         }
       } catch (e) {
-	if (DEBUG) {
+	      if (DEBUG) {
           console.log(e);
         } else {
           console.log("A location failed");
@@ -73,6 +82,7 @@ client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, 
     });
 
     if (isDone) {
+      if (backupWriter) backupWriter.end();
       writer.end();
     }
 

@@ -6,6 +6,13 @@ Still in early stages, the goal of this project is to develop a lightweight and 
 
 ## Changelog
 
+### v0.0.4
+
+Added optional parameter for writing to an additional persistent CSV. The `store-backup` paramter is truthy/falsey, so `1/0` is recommended. The new CLI operation is:
+```
+npm run main [keyword] [max-results] [store-backup]
+```
+
 ### v0.0.3
 
 Removed previous keys and restructured user credentials. The new file is `config_template.js` which you will need to copy as `config.js` and keep in the project root. Updated `.gitignore` files.

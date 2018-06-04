@@ -90,6 +90,7 @@ $.get('./data/topology.json', function(topology) {
 
         if (lastPositions[c] && !lastPositions[c].isNaN && lastPositions[c] < xy[0]) {
 
+          //If you don't care about sentiment color codes and just want things to sparkle
           //var randomCol = '#' + Math.floor(Math.random() * 16777215).toString(16);
 
           context.fillStyle = col, context.fillRect(xy[0],xy[1], 5, 5);
@@ -99,8 +100,6 @@ $.get('./data/topology.json', function(topology) {
       }
     }
   };
-
-  //render();
 
   var time = Date.now();
   var rotate = [0, 0];
