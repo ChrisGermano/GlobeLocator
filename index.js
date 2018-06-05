@@ -15,99 +15,135 @@ const r = new snoowrap({
   password: config.snoowrap.password
 });
 
-var client = new twitter({
+const client = new twitter({
   consumer_key: config.twitter.consumer_key,
   consumer_secret: config.twitter.consumer_secret,
   access_token_key: config.twitter.access_token_key,
   access_token_secret: config.twitter.access_token_secret
 });
 
-var gm_config = {
+const gm_config = {
   key: config.gm_config.key,
   secure: config.gm_config.secure
 };
-
 
 const gmAPI = new gmap(gm_config);
 
 //=============================================
 
-var DEBUG = 0;
-
-//The number of Tweets with a valid location, either from Tweet or user
-var validTweets = 0;
+var DEBUG = 1;
 
 var args = process.argv.slice(2);
 var targetString = args[0] || 'cyka blyat';
-var tweetCount = (parseInt(args[1])+1) || 4;
+var tweetCount = parseInt(args[1])   || 4;
 var storeBackup = args[2] || 0;
+
+var writer = csvWriter();
+writer.pipe(fs.createWriteStream('searches/search.csv'))
+
+if (storeBackup) {
+  var backupWriter = csvWriter();
+  backupWriter.pipe(fs.createWriteStream('searches/'+targetString+'-'+Date.now()+'.csv'));
+}
+
+//Tweets with valid locations, defined in geoCode()
+var locatedTweets = [];
+
+//=============================================
 
 console.log("Pulling tweets containing \"" + targetString + "\"");
 
+//TODO: Ensure targetString doesn't include username results
 client.get('search/tweets', {q: targetString, count: tweetCount}, function(err, tweets, r) {
 
-  console.log("Tweets scraped successfully");
+  var validTweets = [];
 
-  if (storeBackup) {
-    var backupWriter = csvWriter();
-    backupWriter.pipe(fs.createWriteStream('searches/'+targetString+'-'+Date.now()+'.csv'));
+  for (var i = 0; i < tweets.statuses.length; i++) {
+    if (tweets.statuses[i] && tweets.statuses[i].user.geo_enabled) {
+      validTweets.push(tweets.statuses[i]);
+    }
   }
 
-  var writer = csvWriter()
-  writer.pipe(fs.createWriteStream('searches/search.csv'))
+  console.log("Valid tweets: " + validTweets.length);
 
-  var writeToCSV = function(tweet,isDone) {
+  if (validTweets.length) {
+    geoCode(validTweets,0);
+  }
 
-    if (tweet && tweet.user && tweet.user.location) {} else { return; }
+});
 
-    var param = {
-      'address' : tweet.user.location
+function geoCode(tweets,index) {
+
+  var max = tweets.length - 1;
+  var isDone = index == max;
+
+  var param = {
+    'address' : tweets[index].user.location
+  }
+
+  gmAPI.geocode(param, function(err, result) {
+
+    if (err) {
+      console.log(err.message);
     }
 
-    gmAPI.geocode(param, function(err, result) {
+    try {
+      var latLng = result.results[0] ? result.results[0].geometry.location : '';
 
-      try {
-        var latLng = result.results[0] ? result.results[0].geometry.location : '';
+      if (latLng != '') {
 
-        if (latLng != '' && !isDone) {
+        tweets[index].lat = latLng.lat;
+        tweets[index].lng = latLng.lng;
 
-          validTweets++;
+        locatedTweets.push(tweets[index]);
 
-          var senti = sentiment(tweet.text);
-
-          if (backupWriter) {
-            backupWriter.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score});
-          }
-
-          writer.write({lat: latLng.lat, lng: latLng.lng, sentiment: senti.score});
-
-        } else if (isDone) {
-          //backupWriter.end();
-          //writer.end();
-          console.log("Analysis complete, " + validTweets + "/" + (tweetCount-1) + " tweets saved.");
-        }
-
-      } catch (e) {
-        if (DEBUG) {
-          console.log(e);
+        if (!isDone) {
+          index++;
+          geoCode(tweets, index);
         } else {
-          console.log("A location failed");
+          console.log("Tweets with valid locations: " + locatedTweets.length);
+          writeToCSV(locatedTweets, 0);
         }
       }
+    } catch (e) {
+      if (DEBUG) {
+        console.log(e);
+      } else {
+        console.log("A location failed");
+      }
+    }
+  });
 
-    });
+}
 
+function writeToCSV(tweets, index) {
+
+  var isDone = tweets.length-1 == index;
+  var tweet = tweets[index];
+
+  var senti = sentiment(tweet.text);
+
+  if (storeBackup) {
+    backupWriter.write({lat: tweet.lat, lng: tweet.lng, sentiment: senti.score});
   }
 
-  console.log("Beginning analysis of tweets");
+  writer.write({lat: tweet.lat, lng: tweet.lng, sentiment: senti.score});
 
-  const tCount = tweets.search_metadata.count - 1;
+  if (DEBUG)
+    console.log("Tweet [lat:" + tweet.lat + ", lng:" + tweet.lng + ", score:" + senti.score + "]");
 
-  for (var t = 0; t < tweets.search_metadata.count; t++) {
+  index++;
 
-    writeToCSV(tweets.statuses[t], t == tCount);
-
+  if (!isDone) {
+    writeToCSV(tweets, index);
+  } else {
+    if (storeBackup) {
+      backupWriter.end();
+    }
+    writer.end();
+    console.log("Process complete, " + locatedTweets.length + "/" + tweetCount + " tweets saved.");
   }
 
-})
+}
+
 return;
